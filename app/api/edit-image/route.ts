@@ -40,7 +40,7 @@ export async function POST(request: Request) {
                 console.log(part.text);
             } else if (part.inlineData) {
                 const imageData = part.inlineData.data;
-                return NextResponse.json({ result: imageData })
+                return NextResponse.json({ result: `data:image/png;base64,${imageData}` })
             }
         }
     }
