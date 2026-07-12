@@ -6,10 +6,12 @@ type EditorState = {
     prompt: string;
     history: string[];
     historyIndex: number;
+    showHistory: boolean;
     setHistory: (history: string[]) => void;
     setHistoryIndex: (index: number) => void;
     undo: () => void;
     redo: () => void;
+    toggleHistory: () => void;
     setImage: (ImageData: string) => void;
     setPrompt: (prompt: string) => void;
     generateEdit: () => Promise<void>;
@@ -21,6 +23,7 @@ export const useEditorStore = create<EditorState>()(
         prompt: "",
         history: [],
         historyIndex: 0,
+        showHistory: false,
 
         setImage: (imageData: string) => set(() => ({
             image: imageData,
@@ -53,6 +56,13 @@ export const useEditorStore = create<EditorState>()(
                 })
             }
 
+        },
+
+        toggleHistory: () => {
+            const state = get();
+            if (state.history.length) {
+                set({ showHistory: !state.showHistory })
+            }
         },
 
         generateEdit: async () => {
