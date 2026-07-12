@@ -7,11 +7,12 @@ import { LeftSidebar } from "@/components/left-sidebar";
 import ImageGenerationLoading from "@/components/image-generation";
 import { AIPromptInput } from "@/components/prompt-input";
 import { RightSidebar } from "@/components/right-sidebar";
-import { useRef, useState } from "react";
+import { useRef } from "react";
+import { useEditorStore } from "@/store/useEditorState";
 
 export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [image, setImage] = useState("");
+  const { image, setImage } = useEditorStore();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
