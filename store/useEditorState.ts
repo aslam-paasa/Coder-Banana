@@ -7,11 +7,13 @@ type EditorState = {
     history: string[];
     historyIndex: number;
     showHistory: boolean;
+    isLoading: boolean;
     setHistory: (history: string[]) => void;
     setHistoryIndex: (index: number) => void;
     undo: () => void;
     redo: () => void;
     toggleHistory: () => void;
+    setLoading: (val: boolean) => void;
     setImage: (ImageData: string) => void;
     setPrompt: (prompt: string) => void;
     generateEdit: () => Promise<void>;
@@ -24,6 +26,7 @@ export const useEditorStore = create<EditorState>()(
         history: [],
         historyIndex: 0,
         showHistory: false,
+        isLoading: false,
 
         setImage: (imageData: string) => set(() => ({
             image: imageData,
@@ -65,8 +68,15 @@ export const useEditorStore = create<EditorState>()(
             }
         },
 
+        setLoading: (val: boolean) => {
+            set({ isLoading: val });
+        },
+
         generateEdit: async () => {
             const state = get();
+
+            set({ isLoading: true })
+
             const response = await fetch("/api/edit-image", {
                 method: 'POST',
                 headers: {
@@ -79,6 +89,7 @@ export const useEditorStore = create<EditorState>()(
             })
 
             if (!response.ok) {
+                set({ isLoading: false })
                 throw new Error("failed to generate.")
             }
 
@@ -90,6 +101,7 @@ export const useEditorStore = create<EditorState>()(
                 image: data.result,
                 history: clonedHistory,
                 historyIndex: state.history.length,
+                isLoading: false,
             }));
         },
         setPrompt: (prompt: string) => set({ prompt }),
