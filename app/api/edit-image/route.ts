@@ -13,7 +13,7 @@ function cleanBase64Image(dataUrl: string): string {
 }
 
 export async function POST(request: Request) {
-    const { imageBase64, prompt, userFiles } = await request.json()
+    const { imageBase64, prompt, userFiles, aspectRatio } = await request.json()
 
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     const parts = [
@@ -52,6 +52,11 @@ export async function POST(request: Request) {
     const response = await ai.models.generateContent({
         model: "gemini-3.1-flash-image",
         contents: parts,
+        config: {
+            imageConfig: {
+                aspectRatio: aspectRatio || undefined,
+            }
+        }
     });
 
     const content = response.candidates?.[0].content

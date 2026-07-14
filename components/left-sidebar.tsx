@@ -28,7 +28,7 @@ import { useEditorStore } from "@/store/useEditorState";
 
 export const LeftSidebar = () => {
 
-  const { applyFilter, isLoading } = useEditorStore();
+  const { applyFilter, applyExpansion, isLoading } = useEditorStore();
 
   return (
     <aside className="hidden md:flex w-80 flex-col border-r border-zinc-800 bg-zinc-950/50 z-20 shrink-0 h-full">
@@ -180,10 +180,8 @@ export const LeftSidebar = () => {
                         icon={r.icon}
                         label={r.label}
                         desc={r.desc}
-                        onClick={() => {
-
-                        }}
-                        disabled={true}
+                        onClick={() => { applyExpansion(r.aspectRatio) }}
+                        disabled={false}
                       />
                     ))}
                   </div>
