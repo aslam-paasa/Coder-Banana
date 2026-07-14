@@ -24,8 +24,12 @@ import {
 import GridItem from "@/components/grid-item";
 import { filters, ratios } from "@/lib/constants";
 import { ToolButton } from "@/components//tool-button";
+import { useEditorStore } from "@/store/useEditorState";
 
 export const LeftSidebar = () => {
+
+  const { applyFilter, isLoading } = useEditorStore();
+
   return (
     <aside className="hidden md:flex w-80 flex-col border-r border-zinc-800 bg-zinc-950/50 z-20 shrink-0 h-full">
       <ScrollArea className="h-full w-full">
@@ -40,25 +44,25 @@ export const LeftSidebar = () => {
             <div className="grid grid-cols-4 gap-2">
               <ToolButton
                 active={true}
-                onClick={()=>{}}
+                onClick={() => { }}
                 icon={<Hand size={18} />}
                 label="Pan"
               />
               <ToolButton
                 active={false}
-                onClick={() => {}}
+                onClick={() => { }}
                 icon={<Square size={18} />}
                 label="Select"
               />
               <ToolButton
                 active={false}
-                onClick={()=>{}}
+                onClick={() => { }}
                 icon={<Brush size={18} />}
                 label="Brush"
               />
               <ToolButton
                 active={false}
-                onClick={()=>{}}
+                onClick={() => { }}
                 icon={<Eraser size={18} />}
                 label="Erase"
               />
@@ -81,7 +85,7 @@ export const LeftSidebar = () => {
                 max={100}
                 min={5}
                 step={1}
-                onValueChange={()=>{
+                onValueChange={() => {
                 }}
                 className="py-2 [&>.relative>.absolute]:bg-yellow-500 **:[[role=slider]]:border-yellow-500 **:[[role=slider]]:bg-zinc-950 **:[[role=slider]]:ring-offset-zinc-950 **:[[role=slider]]:focus-visible:ring-yellow-500"
               />
@@ -118,7 +122,7 @@ export const LeftSidebar = () => {
                       icon={Delete}
                       label={"Remove Background"}
                       // desc={"clear background"}
-                      onClick={()=>{
+                      onClick={() => {
 
                       }}
                       disabled={true}
@@ -127,7 +131,7 @@ export const LeftSidebar = () => {
                       icon={Sparkles}
                       label={"AI Refreshment"}
                       desc={""}
-                      onClick={() => {}}
+                      onClick={() => { }}
                       disabled={true}
                     />
                   </div>
@@ -151,10 +155,8 @@ export const LeftSidebar = () => {
                           image={item.image}
                           label={item.name}
                           desc={item.prompt}
-                          onClick={() => {
-                            
-                          }}
-                          disabled={true}
+                          onClick={() => { applyFilter(item.prompt) }}
+                          disabled={isLoading}
                         />
                       );
                     })}

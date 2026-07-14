@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     const { imageBase64, prompt, userFiles } = await request.json()
 
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-    let parts = [
+    const parts = [
         { text: prompt },
         {
             inlineData: {
@@ -28,6 +28,14 @@ export async function POST(request: Request) {
 
 
     if (userFiles && Array.isArray(userFiles) && userFiles.length > 0) {
+        /**
+         {
+            filename: "saree-lady.jpg"
+            mediaType: "image/jpeg"
+            type: "file"
+            url: "data:image/jpeg;base64,/9j/4AA..."
+        }
+        */
         const processedFiles = userFiles.map((file) => {
             return {
                 inlineData: {
