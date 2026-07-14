@@ -13,10 +13,10 @@ function cleanBase64Image(dataUrl: string): string {
 }
 
 export async function POST(request: Request) {
-    const { imageBase64, prompt } = await request.json()
+    const { imageBase64, prompt, userFiles } = await request.json()
 
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-    const parts = [
+    let parts = [
         { text: prompt },
         {
             inlineData: {
@@ -25,6 +25,20 @@ export async function POST(request: Request) {
             },
         }
     ];
+
+
+    if (userFiles && Array.isArray(userFiles) && userFiles.length > 0) {
+        const processedFiles = userFiles.map((file) => {
+            return {
+                inlineData: {
+                    mimeType: getMimeType(file.url),
+                    data: cleanBase64Image(file.url),
+                },
+            }
+        })
+
+        parts.push(...processedFiles)
+    }
 
 
     const response = await ai.models.generateContent({
@@ -44,6 +58,6 @@ export async function POST(request: Request) {
             }
         }
     }
-    
+
     return NextResponse.json({ message: "Failed to generate the image" })
 } 
