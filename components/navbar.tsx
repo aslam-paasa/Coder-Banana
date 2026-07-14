@@ -9,7 +9,14 @@ import { cn } from "@/lib/utils";
 import { useEditorStore } from "@/store/useEditorState";
 
 export function Navbar() {
-  const { undo, redo, historyIndex, history, showHistory, toggleHistory } = useEditorStore();
+  const { image, undo, redo, historyIndex, history, showHistory, toggleHistory } = useEditorStore();
+
+  const handleDownload = () => {
+    const link = document.createElement('a')
+    link.download = `codersbanana-${Date.now()}.png`
+    link.href = image as string
+    link.click();
+  }
 
   return (
     <header className="h-16 bg-zinc-950 border-b border-zinc-800 flex items-center justify-between px-4 shrink-0 z-50">
@@ -77,6 +84,8 @@ export function Navbar() {
           </Button>
 
           <Button
+            onClick={handleDownload}
+            disabled={!image}
             variant="default"
             size="sm"
             className="h-9 bg-yellow-500 text-zinc-950 hover:bg-yellow-400 font-bold px-2.5 md:px-4"
