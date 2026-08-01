@@ -4,39 +4,44 @@ import NextImage from 'next/image';
 
 const ImageEditor = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const imgRef = useRef<HTMLImageElement>(null);
     const { image } = useEditorStore();
 
     const draw = useCallback(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
+        if (!canvasRef.current) return;
 
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
+        /* get canvas context */
+        const ctx = canvasRef.current.getContext("2d");
+        if (!ctx || !imgRef.current) return;
 
-        if (!image) return;
-        const img = new Image();
-        img.src = image;
+        /* clear the canvas */
+        ctx.clearRect(
+            0,
+            0,
+            canvasRef.current!.width,
+            canvasRef.current!.height
+        );
 
-        img.onload = () => {
-            /* set canvas size to image size */
-            canvas.width = img.naturalWidth;
-            canvas.height = img.naturalHeight;
-
-            /* clear the canvas */
-            ctx.clearRect(0, 0, canvas!.width, canvas!.height);
-            
-            /* draw the image */
-            ctx.drawImage(img, 0, 0);
-        }
+        /* draw the image */
+        ctx.drawImage(imgRef.current, 0, 0);
     }, [image])
 
+    /* Initial image load */
     useEffect(() => {
         if (!image) return;
 
+        /* create new image */
         const img = new Image();
         img.src = image;
 
+        /* load image, set image on canvas and draw */
         img.onload = () => {
+            imgRef.current = img;
+
+            /* set canvas size to image size */
+            canvasRef.current!.width = img.naturalWidth;
+            canvasRef.current!.height = img.naturalHeight;
+
             draw();
         }
     }, [image, draw])
