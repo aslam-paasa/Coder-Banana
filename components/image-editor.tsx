@@ -9,6 +9,7 @@ const ImageEditor = () => {
     const maskCanvasRef = useRef<HTMLCanvasElement>(null);
     const imgRef = useRef<HTMLImageElement>(null);
     const startPosRef = useRef<Point>(null);
+    const isDrawingRef = useRef<boolean>(false);
 
     const { image, selectedTool } = useEditorStore();
 
@@ -73,6 +74,8 @@ const ImageEditor = () => {
 
         e.preventDefault()
 
+        isDrawingRef.current = true;
+
         const pos = getPointerPosition(e);
         startPosRef.current = pos;
 
@@ -103,8 +106,6 @@ const ImageEditor = () => {
         ctx.moveTo(start.x, start.y);
         ctx.lineTo(end.x, end.y);
         ctx.stroke();
-
-        console.log('Calling')
     }
 
     const getPointerPosition = (e: React.PointerEvent) => {
@@ -117,10 +118,33 @@ const ImageEditor = () => {
         return { x, y }
     }
 
+    const drawMove = (e: React.PointerEvent) => {
+        if (!isDrawingRef.current) return;
+
+        const startPosition = startPosRef.current;
+        if (!startPosition) return;
+
+        e.preventDefault();
+
+        const currentPosition = getPointerPosition(e);
+        if (selectedTool === ToolType.BRUSH || selectedTool === ToolType.ERASER) {
+            updateMask(startPosition, currentPosition);
+            startPosRef.current = currentPosition;
+        }
+    }
+
+    const endDrawing = () => {
+        isDrawingRef.current = false;
+
+        // todo: prepare the mask to be base64 (dataurl)
+    }
+
     return (
         <div className='w-full h-full flex items-center justify-center'>
             <canvas
                 onPointerDown={startDrawing}
+                onPointerMove={drawMove}
+                onPointerUp={endDrawing}
                 ref={canvasRef}
                 className='max-w-full max-h-full'></canvas>
             <canvas
