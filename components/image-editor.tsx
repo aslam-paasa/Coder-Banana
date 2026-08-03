@@ -4,9 +4,12 @@ import { ToolType } from '@/lib/constants';
 import NextImage from 'next/image';
 import { Point } from '@/types';
 
+const MASK_WHITE_THRESHOLD = 10;
+
 const ImageEditor = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const maskCanvasRef = useRef<HTMLCanvasElement>(null);
+    const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
     const imgRef = useRef<HTMLImageElement>(null);
     const startPosRef = useRef<Point>(null);
     const isDrawingRef = useRef<boolean>(false);
@@ -16,11 +19,10 @@ const ImageEditor = () => {
     const draw = useCallback(() => {
         if (!canvasRef.current) return;
 
-        /* get canvas context */
+        /* draw the image */
         const ctx = canvasRef.current.getContext("2d");
         if (!ctx || !imgRef.current) return;
 
-        /* clear the canvas */
         ctx.clearRect(
             0,
             0,
@@ -28,11 +30,59 @@ const ImageEditor = () => {
             canvasRef.current!.height
         );
 
-        /* draw the image */
         ctx.drawImage(imgRef.current, 0, 0);
-    }, [image])
 
-    /* Initial image load, initialize mask canvas */
+        /* copy mask to overlay canvas */
+        ctx.save()
+
+        /* todo: change global alpha */
+        const overlayCanvas = overlayCanvasRef.current;
+        if (!overlayCanvas || !maskCanvasRef.current) return;
+
+        const overlayCtx = overlayCanvas?.getContext("2d");
+        if (!overlayCtx) return;
+
+        overlayCtx.clearRect(
+            0,
+            0,
+            overlayCanvas.width,
+            overlayCanvas?.height
+        );
+
+        overlayCtx.drawImage(maskCanvasRef.current, 0, 0);
+
+        /* Change white color to read (highlight) */
+        const imageData = overlayCtx.getImageData(
+            0,
+            0,
+            overlayCanvas.width,
+            overlayCanvas.height
+        );
+
+        const data = imageData.data;
+
+        for (let i = 0; i < data.length; i += 4) {
+            // if white side
+            if(data[i] > MASK_WHITE_THRESHOLD) {
+                data[i] = 255;     // red
+                data[i + 1] = 0;   // green
+                data[i + 2] = 0;   // blue
+                data[i + 3] = 128; // alpha
+            } else {
+                // if black side
+                data[i + 3] = 0; // full transparent
+            }
+        }
+
+        overlayCtx.putImageData(imageData, 0, 0);
+        ctx.drawImage(overlayCanvas, 0, 0);
+
+        ctx.restore();
+
+    }, [])
+
+
+    /* Initial image load, initialize mask canvas, layout canvas */
     useEffect(() => {
         if (!image) return;
 
@@ -63,6 +113,11 @@ const ImageEditor = () => {
                     maskCanvasRef.current.height
                 );
             }
+
+            /* create overlay canvas */
+            // overlayCanvasRef.current = document.createElement("canvas");
+            overlayCanvasRef.current.width = img.width;
+            overlayCanvasRef.current.height = img.height;
 
             draw();
         }
@@ -127,10 +182,13 @@ const ImageEditor = () => {
         e.preventDefault();
 
         const currentPosition = getPointerPosition(e);
+
         if (selectedTool === ToolType.BRUSH || selectedTool === ToolType.ERASER) {
             updateMask(startPosition, currentPosition);
             startPosRef.current = currentPosition;
         }
+
+        draw();
     }
 
     const endDrawing = () => {
@@ -140,7 +198,10 @@ const ImageEditor = () => {
     }
 
     return (
-        <div className='w-full h-full flex items-center justify-center'>
+        <div className='w-full h-full flex items-center justify-center overflow-auto'>
+            <canvas
+                ref={maskCanvasRef}
+                className='max-w-full max-h-full'></canvas>
             <canvas
                 onPointerDown={startDrawing}
                 onPointerMove={drawMove}
@@ -148,7 +209,7 @@ const ImageEditor = () => {
                 ref={canvasRef}
                 className='max-w-full max-h-full'></canvas>
             <canvas
-                ref={maskCanvasRef}
+                ref={overlayCanvasRef}
                 className='max-w-full max-h-full'></canvas>
         </div>
     )
