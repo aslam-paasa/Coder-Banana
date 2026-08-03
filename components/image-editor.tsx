@@ -202,7 +202,7 @@ const ImageEditor = () => {
     }
 
     return (
-        <div className='w-full h-full flex-col items-center justify-center overflow-auto'>
+        <div className='w-full h-full flex-col items-center justify-center'>
             {/* <canvas
                 ref={maskCanvasRef}
                 className='max-w-full max-h-full'></canvas> */}
@@ -212,15 +212,6 @@ const ImageEditor = () => {
                 onPointerUp={endDrawing}
                 ref={canvasRef}
                 className='max-w-full max-h-full'></canvas>
-
-            {mask && (
-                <NextImage
-                    src={mask as string}
-                    alt="mask"
-                    width={1000}
-                    height={700}
-                />
-            )}
 
             {/* <canvas
                 ref={overlayCanvasRef}
