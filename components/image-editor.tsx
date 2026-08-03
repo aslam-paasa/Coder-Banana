@@ -174,7 +174,7 @@ const ImageEditor = () => {
     }
 
     const drawMove = (e: React.PointerEvent) => {
-        if (!isDrawingRef.current) return;
+        if (!isDrawingRef.current || !canvasRef.current || !startPosRef.current) return;
 
         const startPosition = startPosRef.current;
         if (!startPosition) return;
@@ -186,13 +186,46 @@ const ImageEditor = () => {
         if (selectedTool === ToolType.BRUSH || selectedTool === ToolType.ERASER) {
             updateMask(startPosition, currentPosition);
             startPosRef.current = currentPosition;
+            draw();
+        } else if (selectedTool === ToolType.RECTANGLE) {
+            draw()
+            const ctx = canvasRef.current?.getContext("2d");
+            if (ctx) {
+                ctx.save();
+
+                const w = currentPosition.x - startPosition.x;
+                const h = currentPosition.y - startPosition.y;
+
+                ctx.fillStyle = "rgba(239, 68, 68, 0.2)";
+                ctx.fillRect(startPosition.x, startPosition.y, w, h);
+
+                ctx.restore();
+            }
         }
 
-        draw();
     }
 
-    const endDrawing = () => {
+    const endDrawing = (e: React.PointerEvent) => {
         isDrawingRef.current = false;
+
+        if (selectedTool === ToolType.RECTANGLE) {
+            const endPosition = getPointerPosition(e);
+
+            const startPosition = startPosRef.current;
+            if (!startPosition) return;
+
+            const ctx = maskCanvasRef.current?.getContext("2d");
+            if (ctx) {
+                ctx.fillStyle = "white";
+
+                const w = endPosition.x - startPosition.x;
+                const h = endPosition.y - startPosition.y;
+
+                if (Math.abs(w) > 0 && Math.abs(h) > 0) {
+                    ctx.fillRect(startPosition.x, startPosition.y, w, h);
+                }
+            }
+        }
 
         // todo: prepare the mask to be base64 (dataurl)
         if (maskCanvasRef.current) {
