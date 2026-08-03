@@ -14,7 +14,7 @@ const ImageEditor = () => {
     const startPosRef = useRef<Point>(null);
     const isDrawingRef = useRef<boolean>(false);
 
-    const { image, selectedTool, brushSize } = useEditorStore();
+    const { image, selectedTool, brushSize, setMask, mask } = useEditorStore();
 
     const draw = useCallback(() => {
         if (!canvasRef.current) return;
@@ -63,7 +63,7 @@ const ImageEditor = () => {
 
         for (let i = 0; i < data.length; i += 4) {
             // if white side
-            if(data[i] > MASK_WHITE_THRESHOLD) {
+            if (data[i] > MASK_WHITE_THRESHOLD) {
                 data[i] = 255;     // red
                 data[i + 1] = 0;   // green
                 data[i + 2] = 0;   // blue
@@ -99,7 +99,7 @@ const ImageEditor = () => {
             canvasRef.current!.height = img.naturalHeight;
 
             /* prepare initial mask canvas */
-            // maskCanvasRef.current = document.createElement("canvas");
+            maskCanvasRef.current = document.createElement("canvas");
             maskCanvasRef.current.width = img.width;
             maskCanvasRef.current.height = img.height;
 
@@ -115,7 +115,7 @@ const ImageEditor = () => {
             }
 
             /* create overlay canvas */
-            // overlayCanvasRef.current = document.createElement("canvas");
+            overlayCanvasRef.current = document.createElement("canvas");
             overlayCanvasRef.current.width = img.width;
             overlayCanvasRef.current.height = img.height;
 
@@ -195,22 +195,36 @@ const ImageEditor = () => {
         isDrawingRef.current = false;
 
         // todo: prepare the mask to be base64 (dataurl)
+        if (maskCanvasRef.current) {
+            const dataUrl = maskCanvasRef.current.toDataURL('image/png');
+            setMask(dataUrl);
+        }
     }
 
     return (
-        <div className='w-full h-full flex items-center justify-center overflow-auto'>
-            <canvas
+        <div className='w-full h-full flex-col items-center justify-center overflow-auto'>
+            {/* <canvas
                 ref={maskCanvasRef}
-                className='max-w-full max-h-full'></canvas>
+                className='max-w-full max-h-full'></canvas> */}
             <canvas
                 onPointerDown={startDrawing}
                 onPointerMove={drawMove}
                 onPointerUp={endDrawing}
                 ref={canvasRef}
                 className='max-w-full max-h-full'></canvas>
-            <canvas
+
+            {mask && (
+                <NextImage
+                    src={mask as string}
+                    alt="mask"
+                    width={1000}
+                    height={700}
+                />
+            )}
+
+            {/* <canvas
                 ref={overlayCanvasRef}
-                className='max-w-full max-h-full'></canvas>
+                className='max-w-full max-h-full'></canvas> */}
         </div>
     )
 }

@@ -6,6 +6,7 @@ import { number } from 'motion/react';
 
 type EditorState = {
     image: string | null;
+    mask: string | null;
     prompt: string;
     history: string[];
     historyIndex: number;
@@ -14,6 +15,7 @@ type EditorState = {
     userFiles: FileUIPart[];
     selectedTool: ToolType;
     brushSize: number;
+    setMask: (maskData: string) => void;
     setBrushSize: (size: number) => void;
     setUserFiles: (files: FileUIPart[]) => void;
     setHistory: (history: string[]) => void;
@@ -33,6 +35,7 @@ type EditorState = {
 export const useEditorStore = create<EditorState>()(
     devtools((set, get) => ({
         image: null,
+        mask: null,
         prompt: "",
         history: [],
         historyIndex: 0,
@@ -41,6 +44,11 @@ export const useEditorStore = create<EditorState>()(
         userFiles: [],
         selectedTool: ToolType.MOVE,
         brushSize: 10,
+
+        setMask: (maskData: string) => {
+            set({ mask: maskData })
+        },
+
         setBrushSize: (size: number) => {
             set({ brushSize: size })
         },
