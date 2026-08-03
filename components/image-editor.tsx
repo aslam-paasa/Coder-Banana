@@ -11,7 +11,7 @@ const ImageEditor = () => {
     const startPosRef = useRef<Point>(null);
     const isDrawingRef = useRef<boolean>(false);
 
-    const { image, selectedTool } = useEditorStore();
+    const { image, selectedTool, brushSize } = useEditorStore();
 
     const draw = useCallback(() => {
         if (!canvasRef.current) return;
@@ -90,7 +90,7 @@ const ImageEditor = () => {
         const ctx = maskCanvasRef.current.getContext("2d");
         if (!ctx) return;
 
-        ctx.lineWidth = 100;
+        ctx.lineWidth = brushSize;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
 

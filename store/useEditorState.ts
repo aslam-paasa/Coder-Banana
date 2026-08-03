@@ -2,6 +2,7 @@ import { FileUIPart } from 'ai';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { ToolType } from '@/lib/constants';
+import { number } from 'motion/react';
 
 type EditorState = {
     image: string | null;
@@ -12,6 +13,8 @@ type EditorState = {
     isLoading: boolean;
     userFiles: FileUIPart[];
     selectedTool: ToolType;
+    brushSize: number;
+    setBrushSize: (size: number) => void;
     setUserFiles: (files: FileUIPart[]) => void;
     setHistory: (history: string[]) => void;
     setHistoryIndex: (index: number) => void;
@@ -37,6 +40,10 @@ export const useEditorStore = create<EditorState>()(
         isLoading: false,
         userFiles: [],
         selectedTool: ToolType.MOVE,
+        brushSize: 10,
+        setBrushSize: (size: number) => {
+            set({ brushSize: size })
+        },
 
         setSelectedTool: (tool: ToolType) => {
             set({ selectedTool: tool })

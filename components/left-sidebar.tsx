@@ -28,7 +28,15 @@ import { useEditorStore } from "@/store/useEditorState";
 
 export const LeftSidebar = () => {
 
-  const { applyFilter, applyExpansion, isLoading, selectedTool, setSelectedTool } = useEditorStore();
+  const {
+    applyFilter,
+    applyExpansion,
+    isLoading,
+    selectedTool,
+    setSelectedTool,
+    brushSize,
+    setBrushSize
+  } = useEditorStore();
 
   return (
     <aside className="hidden md:flex w-80 flex-col border-r border-zinc-800 bg-zinc-950/50 z-20 shrink-0 h-full">
@@ -75,17 +83,18 @@ export const LeftSidebar = () => {
                   Size
                 </h3>
                 <span className="text-xs font-mono text-zinc-200 bg-zinc-900 border border-zinc-800 px-2 py-1 rounded">
-                  10px
+                  {brushSize}px
                 </span>
               </div>
 
               {/* Custom styled slider to force yellow theme regardless of global primary color */}
               <Slider
-                defaultValue={[10]}
+                defaultValue={[brushSize]}
                 max={100}
                 min={5}
                 step={1}
-                onValueChange={() => {
+                onValueChange={(value) => {
+                  setBrushSize(value[0])
                 }}
                 className="py-2 [&>.relative>.absolute]:bg-yellow-500 **:[[role=slider]]:border-yellow-500 **:[[role=slider]]:bg-zinc-950 **:[[role=slider]]:ring-offset-zinc-950 **:[[role=slider]]:focus-visible:ring-yellow-500"
               />
